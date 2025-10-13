@@ -103,7 +103,7 @@ if 'recommended_crops' not in st.session_state:
 def _classify_season(dt: pd.Timestamp) -> str:
     if pd.isna(dt): return "Unknown"
     if dt.month in (1, 2, 3, 4, 5): return "Premonsoon"
-    if dt.month in (8, 10, 11, 12): return "Postmonsoon" # Grouping August with post-monsoon
+    if dt.month in (8, 10, 11, 12): return "Postmonsoon"
     return "Other"
 
 @st.cache_data
@@ -292,9 +292,9 @@ def render_home_page(df):
             st.markdown("<br>", unsafe_allow_html=True)
             st.header("📍 Location Map")
             # --- THIS IS THE CORRECTED LINE ---
-            fig_map = px.scatter_map(loc_latest, lat="LATITUDE", lon="LONGITUDE", hover_name="VILLAGE", hover_data=["DTWL"],
-                                     color="DTWL", size="DTWL", size_max=12, zoom=4, mapbox_style="open-street-map",
-                                     color_continuous_scale=px.colors.sequential.Viridis_r)
+            fig_map = px.scatter_mapbox(loc_latest, lat="LATITUDE", lon="LONGITUDE", hover_name="VILLAGE", hover_data=["DTWL"],
+                                        color="DTWL", size="DTWL", size_max=12, zoom=4, mapbox_style="open-street-map",
+                                        color_continuous_scale=px.colors.sequential.Viridis_r)
             fig_map.update_layout(margin=dict(t=0,b=0,l=0,r=0), height=500)
             st.plotly_chart(fig_map, use_container_width=True)
 

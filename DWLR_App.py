@@ -10,7 +10,8 @@ import plotly.express as px
 # -------------------------
 # API key & Page Config
 # -------------------------
-OPENWEATHER_API_KEY = "223b9d01eaaae4062b28a2579793e770"
+# NEW CODE
+OPENWEATHER_API_KEY = st.secrets["OPENWEATHER_API_KEY"]
 st.set_page_config(
     page_title="Groundwater Evaluation Dashboard",
     page_icon="💧",
@@ -372,3 +373,4 @@ else:
         render_home_page(df_filtered)
     elif st.session_state.page == 'report':
         render_report_page(df_filtered)
+

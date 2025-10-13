@@ -324,7 +324,7 @@ def render_home_page(df):
         if not loc_latest.empty:
             st.markdown("<br>", unsafe_allow_html=True)
             st.header("📍 Location Map")
-            fig_map = px.scatter_mapbox(loc_latest, lat="LATITUDE", lon="LONGITUDE", hover_name="VILLAGE", hover_data=["DTWL"],
+            fig_map = px.scatter_map(loc_latest, lat="LATITUDE", lon="LONGITUDE", hover_name="VILLAGE", hover_data=["DTWL"],
                                         color="DTWL", size="DTWL", size_max=12, zoom=4, color_continuous_scale=px.colors.sequential.Viridis_r)
             fig_map.update_layout(mapbox_style="open-street-map", margin=dict(t=0,b=0,l=0,r=0), height=500)
             st.plotly_chart(fig_map, use_container_width=True)
@@ -373,4 +373,5 @@ else:
         render_home_page(df_filtered)
     elif st.session_state.page == 'report':
         render_report_page(df_filtered)
+
 

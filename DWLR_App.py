@@ -242,8 +242,16 @@ def render_home_page(df):
         weather_cols[2].markdown(f'<div class="kpi-card"><div class="kpi-icon">🌱</div><div class="kpi-title">Soil Type</div><div class="kpi-value">{st.session_state.soil_type}</div></div>', unsafe_allow_html=True)
 
     def get_rule_based_recommendation(state, temp, avg_dtwl):
-        # (Rule-based logic remains the same)
-        return "Alluvial Soil", "Rice, Wheat, Sugarcane"
+        if temp is None or avg_dtwl is None or pd.isna(temp) or pd.isna(avg_dtwl): return "Inconclusive", "Input data missing"
+        state_to_region = {'Punjab': 'North','Haryana': 'North','Uttar Pradesh': 'North','Rajasthan': 'West','Gujarat': 'West','Maharashtra': 'West','West Bengal': 'East','Bihar': 'East','Karnataka': 'South','Tamil Nadu': 'South','Madhya Pradesh': 'Central'}
+        crop_rules = {'North': {'soil': 'Alluvial Soil', 'Good Water': {'Hot': ['Rice', 'Sugarcane'], 'Moderate': ['Wheat', 'Mustard']}, 'Low Water': {'Hot': ['Millets (Bajra)'], 'Moderate': ['Gram', 'Barley']}},'South': {'soil': 'Red & Laterite', 'Good Water': {'Hot': ['Rice', 'Coconut'], 'Moderate': ['Ragi', 'Maize']}, 'Low Water': {'Hot': ['Groundnut', 'Cotton'], 'Moderate': ['Ragi', 'Horse Gram']}},'West': {'soil': 'Sandy & Arid', 'Good Water': {'Hot': ['Cotton', 'Groundnut'], 'Moderate': ['Wheat', 'Cumin']}, 'Low Water': {'Hot': ['Millets (Bajra)'], 'Moderate': ['Gram']}},'Central': {'soil': 'Black Soil', 'Good Water': {'Hot': ['Soybean', 'Cotton'], 'Moderate': ['Wheat', 'Gram']}, 'Low Water': {'Hot': ['Soybean', 'Sorghum'], 'Moderate': ['Gram']}},'Default': {'soil': 'Varies', 'Good Water': {'Hot': ['Maize'], 'Moderate': ['Wheat']}, 'Low Water': {'Hot': ['Millets'], 'Moderate': ['Gram']}}}
+        region = state_to_region.get(state, 'Default')
+        rules = crop_rules.get(region, crop_rules['Default'])
+        soil = rules['soil']
+        water = 'Good Water' if avg_dtwl < 15 else 'Low Water'
+        temp_cat = 'Hot' if temp > 28 else 'Moderate'
+        crops = rules.get(water, {}).get(temp_cat, ["No recommendation."])
+        return soil, ", ".join(crops)
 
     st.markdown("---")
     st.header("🌾 Crop Recommendation and Report Download")
@@ -257,8 +265,26 @@ def render_home_page(df):
             else: st.error("Weather or water level data unavailable.")
     
     with action_cols[1]:
-        # (Download logic remains the same)
-        st.download_button(label="📂 Download Full Report", data="placeholder", file_name="groundwater_report.csv")
+        # --- THIS IS THE CORRECTED LOGIC ---
+        summary_header = "Metric,Value\n"
+        summary_rows = [
+            f"Location - State,{st.session_state.state or 'N/A'}",
+            f"Location - District,{st.session_state.district or 'N/A'}",
+            f"Overall DTWL (m),{avg_dtwl:.2f}",
+            f"Temperature (°C),{f'{weather_temp:.1f}' if weather_temp is not None else 'N/A'}",
+            f"Predicted Soil Type,\"{st.session_state.soil_type}\"",
+            f"Recommended Crops,\"{st.session_state.recommended_crops}\"",
+        ]
+        summary_string = summary_header + "\n".join(summary_rows)
+        raw_data_string = df.to_csv(index=False)
+        final_csv_string = summary_string + "\n\n--- RAW DATA ---\n\n" + raw_data_string
+        
+        st.download_button(
+            label="📂 Download Full Report",
+            data=final_csv_string.encode("utf-8"),
+            file_name="groundwater_report.csv",
+            mime="text/csv"
+        )
 
     if st.session_state.recommended_crops:
         st.markdown(f"<div class='result-box'><strong>Recommended Crops:</strong> {st.session_state.recommended_crops}</div>", unsafe_allow_html=True)
@@ -291,7 +317,6 @@ def render_home_page(df):
         if not loc_latest.empty:
             st.markdown("<br>", unsafe_allow_html=True)
             st.header("📍 Location Map")
-            # --- THIS IS THE CORRECTED LINE ---
             fig_map = px.scatter_mapbox(loc_latest, lat="LATITUDE", lon="LONGITUDE", hover_name="VILLAGE", hover_data=["DTWL"],
                                         color="DTWL", size="DTWL", size_max=12, zoom=4, mapbox_style="open-street-map",
                                         color_continuous_scale=px.colors.sequential.Viridis_r)

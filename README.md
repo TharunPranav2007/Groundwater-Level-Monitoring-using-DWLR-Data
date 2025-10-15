@@ -30,7 +30,6 @@ You can access the deployed application here:
 * **📂 Data Export:** Download a comprehensive report in CSV format, including a summary of metrics and the filtered raw data.
 
 
-
 ---
 
 ## 🛠️ Tech Stack
@@ -140,6 +139,7 @@ The application should now be running and accessible in your web browser at `htt
 ```
 .
 ├── DWLR_App.py                                     # Main Streamlit application script
+├── LICENSE                                         # Project license file
 ├── README.md                                       # Project documentation
 ├── requirements.txt                                # List of Python dependencies
 ├── august_wl_1994-2023_compressed-clean.csv        # Data file for August
@@ -166,7 +166,7 @@ Contributions are welcome! If you'd like to improve the dashboard or add new fea
 
 ## 📜 License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 

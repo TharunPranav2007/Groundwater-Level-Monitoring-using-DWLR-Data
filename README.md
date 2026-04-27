@@ -137,7 +137,7 @@ The application should now be running and accessible in your web browser at `htt
 ## 📂 Project Structure
 
 ```
-.
+
 ├── DWLR_App.py                                     # Main Streamlit application script
 ├── LICENSE                                         # Project license file
 ├── README.md                                       # Project documentation
